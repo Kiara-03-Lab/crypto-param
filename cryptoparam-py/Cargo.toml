@@ -1,0 +1,21 @@
+[package]
+name = "cryptoparam"
+version = "0.1.0"
+edition = "2021"
+description = "Plain LWE security estimator with Python bindings"
+license = "MIT"
+
+[lib]
+name = "cryptoparam"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "cryptoparam"
+path = "src/main.rs"
+
+[dependencies]
+pyo3 = { version = "0.20", features = ["extension-module"] }
+
+[profile.release]
+opt-level = 3
+lto = true
