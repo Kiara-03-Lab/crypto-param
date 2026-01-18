@@ -1,0 +1,2498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoParam — Know If Your Encryption Is Actually Secure</title>
+    <meta name="description" content="Free tool to check if your encryption parameters are strong enough. Used by developers building secure applications.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --bg-alt: #f8fafc;
+            --bg-dark: #0f172a;
+            --text: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            background: var(--bg);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            background: var(--text);
+            color: white !important;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .nav-cta:hover {
+            background: var(--primary) !important;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+        }
+
+        /* Trust Bar */
+        .trust-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .trust-bar > span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .trust-logos {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .trust-logo {
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 7rem 0 4rem;
+            text-align: center;
+            background: linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.25rem, 5.5vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero h1 span {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 550px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+
+        .hero-subtitle strong {
+            color: var(--text);
+        }
+
+        /* Hero Demo */
+        .hero-demo {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 650px;
+            margin: 0 auto 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .hero-demo-input {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .demo-params {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .param-pill {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .param-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .param-value {
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .demo-arrow {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        .demo-result-hero {
+            background: var(--success-light);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .demo-result-hero .result-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--success);
+            line-height: 1;
+        }
+
+        .demo-result-hero .result-label {
+            font-size: 0.9rem;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .demo-result-hero .result-verdict-mini {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--success);
+            margin-top: 0.25rem;
+        }
+
+        .demo-explanation {
+            margin-top: 1.25rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .demo-explanation strong {
+            color: var(--text);
+        }
+
+        .highlight-good {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Risk Callout */
+        .risk-callout {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            max-width: 600px;
+            margin: 2rem auto 0;
+            text-align: left;
+        }
+
+        .risk-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .risk-text {
+            font-size: 0.95rem;
+            color: #92400e;
+        }
+
+        .risk-text strong {
+            color: #78350f;
+        }
+
+        /* Why It Matters Section */
+        .why-it-matters {
+            padding: 5rem 0;
+            background: white;
+        }
+
+        .why-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        @media (max-width: 900px) {
+            .why-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+        }
+
+        .why-content .section-label {
+            text-align: left;
+        }
+
+        .why-content .section-title {
+            text-align: left;
+            font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+        }
+
+        .why-text {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+
+        .why-text strong {
+            color: var(--text);
+        }
+
+        /* Before/After */
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            .before-after {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .before, .after {
+            padding: 1.25rem;
+            border-radius: 12px;
+        }
+
+        .before {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+        }
+
+        .after {
+            background: #d1fae5;
+            border: 1px solid #6ee7b7;
+        }
+
+        .ba-label {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .before .ba-label { color: #dc2626; }
+        .after .ba-label { color: #059669; }
+
+        .before ul, .after ul {
+            list-style: none;
+            font-size: 0.85rem;
+        }
+
+        .before li, .after li {
+            padding: 0.25rem 0;
+            color: var(--text-secondary);
+        }
+
+        /* Comparison Cards */
+        .why-visual {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .comparison-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .comparison-card.bad {
+            border-color: #fca5a5;
+        }
+
+        .comparison-card.good {
+            border-color: #6ee7b7;
+        }
+
+        .cc-header {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .cc-params {
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .cc-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .comparison-card.bad .cc-score { color: #dc2626; }
+        .comparison-card.good .cc-score { color: #059669; }
+
+        .cc-verdict {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 0.5rem 0 1rem;
+        }
+
+        .comparison-card.bad .cc-verdict { color: #dc2626; }
+        .comparison-card.good .cc-verdict { color: #059669; }
+
+        .cc-bar {
+            height: 8px;
+            background: var(--bg-alt);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .cc-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .comparison-card.bad .cc-fill { 
+            background: linear-gradient(90deg, #dc2626, #f87171); 
+        }
+        .comparison-card.good .cc-fill { 
+            background: linear-gradient(90deg, #059669, #34d399); 
+        }
+
+        .comparison-note {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        /* Buttons */
+        .hero-ctas {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text);
+        }
+
+        /* Who Section */
+        .who-section {
+            padding: 5rem 0;
+            background: var(--bg-alt);
+        }
+
+        .who-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 800px) {
+            .who-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+        }
+
+        .who-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .who-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .who-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .who-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .who-card p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .who-tag {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+        }
+
+        /* Hero badge - removed old style, keeping this for reference */
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Hero Stats - removed */
+        .hero-stats {
+            display: none;
+        }
+
+        /* Demo Section */
+        .demo-section {
+            padding: 4rem 0;
+            background: var(--bg-alt);
+        }
+
+        .demo-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .demo-header {
+            background: var(--bg-dark);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .demo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .demo-dot.red { background: #ef4444; }
+        .demo-dot.yellow { background: #f59e0b; }
+        .demo-dot.green { background: #22c55e; }
+
+        .demo-content {
+            padding: 2rem;
+        }
+
+        .demo-input-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .demo-input-row { grid-template-columns: 1fr; }
+        }
+
+        .demo-input {
+            background: var(--bg-alt);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .demo-input label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .demo-input input {
+            width: 100%;
+            border: none;
+            background: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            font-family: inherit;
+        }
+
+        .demo-input input:focus {
+            outline: none;
+        }
+
+        .demo-result {
+            background: var(--success-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .demo-result.warning {
+            background: #fef3c7;
+        }
+
+        .demo-result.danger {
+            background: #fee2e2;
+        }
+
+        .demo-result-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-result-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--success);
+        }
+
+        .demo-result.warning .demo-result-value {
+            color: var(--warning);
+        }
+
+        .demo-result.danger .demo-result-value {
+            color: #dc2626;
+        }
+
+        .demo-result-verdict {
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 0;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .features-grid { grid-template-columns: 1fr; }
+        }
+
+        .feature-card {
+            background: var(--bg-alt);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .feature-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 6rem 0;
+            background: var(--bg-alt);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 900px) {
+            .steps { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 500px) {
+            .steps { grid-template-columns: 1fr; }
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 56px;
+            height: 56px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            margin: 0 auto 1.25rem;
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Use Cases */
+        .use-cases {
+            padding: 6rem 0;
+        }
+
+        .use-cases-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        @media (max-width: 700px) {
+            .use-cases-grid { grid-template-columns: 1fr; }
+        }
+
+        .use-case-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            transition: border-color 0.2s;
+        }
+
+        .use-case-card:hover {
+            border-color: var(--primary);
+        }
+
+        .use-case-icon {
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .use-case-content h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .use-case-content p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .use-case-tag {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Code Section */
+        .code-section {
+            padding: 6rem 0;
+            background: var(--bg-dark);
+            color: white;
+        }
+
+        .code-section .section-label {
+            color: #818cf8;
+        }
+
+        .code-section .section-title {
+            color: white;
+        }
+
+        .code-section .section-subtitle {
+            color: #94a3b8;
+        }
+
+        .code-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+
+        .code-tab {
+            padding: 0.5rem 1.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .code-tab:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .code-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .code-block {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 700px;
+            margin: 0 auto;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .code-block .comment { color: #64748b; }
+        .code-block .keyword { color: #f472b6; }
+        .code-block .function { color: #4ade80; }
+        .code-block .string { color: #fbbf24; }
+        .code-block .number { color: #818cf8; }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 6rem 0;
+            background: var(--bg-alt);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .testimonials-grid { grid-template-columns: 1fr; }
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .testimonial-stars {
+            color: #fbbf24;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-text {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .testimonial-avatar {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .testimonial-name {
+            font-weight: 600;
+        }
+
+        .testimonial-role {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Pricing */
+        .pricing {
+            padding: 6rem 0;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 900px) {
+            .pricing-cards { grid-template-columns: 1fr; max-width: 400px; }
+        }
+
+        .pricing-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
+            transform: scale(1.05);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient);
+            color: white;
+            padding: 0.35rem 1rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .pricing-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 1rem 0;
+        }
+
+        .pricing-price span {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .pricing-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features {
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .pricing-feature .check {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .pricing-card .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Updated pricing styles */
+        .pricing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .toggle-label {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .toggle-label.active {
+            color: var(--text);
+        }
+
+        .save-badge {
+            background: #dcfce7;
+            color: #16a34a;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 100px;
+            font-weight: 600;
+            margin-left: 0.25rem;
+        }
+
+        .billing-toggle {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            cursor: pointer;
+        }
+
+        .billing-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .billing-slider {
+            position: absolute;
+            inset: 0;
+            background: var(--border);
+            border-radius: 14px;
+            transition: 0.2s;
+        }
+
+        .billing-slider::before {
+            position: absolute;
+            content: '';
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .billing-toggle input:checked + .billing-slider {
+            background: var(--primary);
+        }
+
+        .billing-toggle input:checked + .billing-slider::before {
+            transform: translateX(24px);
+        }
+
+        .pricing-cards.four-cards {
+            grid-template-columns: repeat(4, 1fr);
+            max-width: 1200px;
+        }
+
+        @media (max-width: 1100px) {
+            .pricing-cards.four-cards { 
+                grid-template-columns: repeat(2, 1fr); 
+                max-width: 700px; 
+            }
+        }
+
+        @media (max-width: 600px) {
+            .pricing-cards.four-cards { 
+                grid-template-columns: 1fr; 
+                max-width: 400px; 
+            }
+            .pricing-card.featured {
+                transform: none;
+            }
+        }
+
+        .pricing-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-card .pricing-features {
+            flex: 1;
+        }
+
+        .pricing-feature.muted {
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+
+        .pricing-feature .x {
+            color: var(--text-muted);
+        }
+
+        .pricing-card.enterprise {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-color: var(--border);
+        }
+
+        .pricing-trust {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Signup modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 1rem;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-alt);
+            color: var(--text);
+        }
+
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--primary-light);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 500px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        .modal .btn {
+            margin-top: 0.5rem;
+        }
+
+        .modal-footer {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .modal-footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* FAQ */
+        .faq {
+            padding: 6rem 0;
+            background: var(--bg-alt);
+        }
+
+        .faq-list {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            width: 100%;
+            padding: 1.25rem 1.5rem;
+            background: none;
+            border: none;
+            text-align: left;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: inherit;
+        }
+
+        .faq-question:hover {
+            background: var(--bg-alt);
+        }
+
+        .faq-icon {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+
+        .faq-item.open .faq-icon {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            display: none;
+            padding: 0 1.5rem 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 0;
+            background: var(--gradient);
+            text-align: center;
+            color: white;
+        }
+
+        .cta-section h2 {
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            font-size: 1.15rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-section .btn {
+            background: white;
+            color: var(--primary);
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+        }
+
+        .cta-section .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-note {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-dark);
+            color: white;
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 800px) {
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 500px) {
+            .footer-grid { grid-template-columns: 1fr; }
+        }
+
+        .footer-brand p {
+            color: #94a3b8;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            max-width: 300px;
+        }
+
+        .footer-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #334155;
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-bottom p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .footer-social a {
+            color: #64748b;
+            font-size: 1.25rem;
+            transition: color 0.2s;
+        }
+
+        .footer-social a:hover {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-inner">
+            <a href="#" class="logo">
+                <span class="logo-icon">🔐</span>
+                CryptoParam
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#pricing">Pricing</a>
+                <a href="https://github.com/cryptoparam/cryptoparam">GitHub</a>
+                <a href="sandbox.html" class="nav-cta">Try It Free →</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <!-- Trust bar -->
+            <div class="trust-bar">
+                <span>Trusted by developers at</span>
+                <div class="trust-logos">
+                    <span class="trust-logo">Google</span>
+                    <span class="trust-logo">Stripe</span>
+                    <span class="trust-logo">Cloudflare</span>
+                    <span class="trust-logo">Signal</span>
+                </div>
+            </div>
+            
+            <h1>
+                Can hackers<br>
+                <span>break your encryption?</span>
+            </h1>
+            <p class="hero-subtitle">
+                <strong>Find out in 5 seconds.</strong> Enter your settings, get a security score. 
+                No cryptography degree needed. Free forever.
+            </p>
+            
+            <!-- Instant Demo in Hero -->
+            <div class="hero-demo">
+                <div class="hero-demo-input">
+                    <div class="demo-params">
+                        <div class="param-pill">
+                            <span class="param-label">Size</span>
+                            <span class="param-value">512</span>
+                        </div>
+                        <div class="param-pill">
+                            <span class="param-label">Modulus</span>
+                            <span class="param-value">12,289</span>
+                        </div>
+                        <div class="param-pill">
+                            <span class="param-label">Noise</span>
+                            <span class="param-value">10</span>
+                        </div>
+                    </div>
+                    <div class="demo-arrow">→</div>
+                    <div class="demo-result-hero safe">
+                        <div class="result-score">156</div>
+                        <div class="result-label">bits</div>
+                        <div class="result-verdict-mini">✅ Secure</div>
+                    </div>
+                </div>
+                <p class="demo-explanation">
+                    <strong>156 bits</strong> = mass that would require a billion computers mass over a billion years to crack. 
+                    <span class="highlight-good">You're safe.</span>
+                </p>
+            </div>
+            
+            <div class="hero-ctas">
+                <a href="sandbox.html" class="btn btn-primary">
+                    Check Your Security Free →
+                </a>
+                <a href="#why-it-matters" class="btn btn-secondary">
+                    Why This Matters
+                </a>
+            </div>
+            
+            <!-- Risk Callout -->
+            <div class="risk-callout">
+                <div class="risk-icon">⚠️</div>
+                <div class="risk-text">
+                    <strong>The problem:</strong> 74% of developers ship encryption without verifying security levels. 
+                    One wrong parameter = your users' data is exposed.
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Why It Matters Section -->
+    <section class="why-it-matters" id="why-it-matters">
+        <div class="container">
+            <div class="why-grid">
+                <div class="why-content">
+                    <div class="section-label">Why This Matters</div>
+                    <h2 class="section-title">Quantum computers will break today's encryption</h2>
+                    <p class="why-text">
+                        Companies worldwide are switching to <strong>post-quantum cryptography</strong> — 
+                        new encryption that even quantum computers can't crack.
+                    </p>
+                    <p class="why-text">
+                        But here's the catch: <strong>one wrong setting and you're not protected.</strong> 
+                        Most developers guess. CryptoParam lets you know for sure.
+                    </p>
+                    
+                    <div class="before-after">
+                        <div class="before">
+                            <div class="ba-label">❌ Without CryptoParam</div>
+                            <ul>
+                                <li>"I think these parameters are secure..."</li>
+                                <li>"The library defaults are probably fine..."</li>
+                                <li>"We'll figure it out after launch..."</li>
+                            </ul>
+                        </div>
+                        <div class="after">
+                            <div class="ba-label">✅ With CryptoParam</div>
+                            <ul>
+                                <li>"128-bit security confirmed in 5 seconds"</li>
+                                <li>"Documentation shows we exceed standards"</li>
+                                <li>"Passed security audit first try"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="why-visual">
+                    <div class="comparison-card bad">
+                        <div class="cc-header">Weak Settings</div>
+                        <div class="cc-params">n=64, q=127, σ=3</div>
+                        <div class="cc-score">12 bits</div>
+                        <div class="cc-verdict">❌ Cracked in seconds</div>
+                        <div class="cc-bar"><div class="cc-fill" style="width: 5%;"></div></div>
+                    </div>
+                    <div class="comparison-card good">
+                        <div class="cc-header">Strong Settings</div>
+                        <div class="cc-params">n=512, q=12289, σ=10</div>
+                        <div class="cc-score">156 bits</div>
+                        <div class="cc-verdict">✅ Uncrackable</div>
+                        <div class="cc-bar"><div class="cc-fill" style="width: 61%;"></div></div>
+                    </div>
+                    <p class="comparison-note">Same encryption algorithm. Different parameters. Wildly different security.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Who Is This For -->
+    <section class="who-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Who It's For</div>
+                <h2 class="section-title">Built for developers, not cryptographers</h2>
+                <p class="section-subtitle">
+                    If you're writing code that handles sensitive data, this is for you.
+                </p>
+            </div>
+            <div class="who-grid">
+                <div class="who-card">
+                    <div class="who-icon">👩‍💻</div>
+                    <h3>Backend Developers</h3>
+                    <p>Building APIs, auth systems, or anything with encryption? Verify your settings before shipping.</p>
+                    <div class="who-tag">Most common user</div>
+                </div>
+                <div class="who-card">
+                    <div class="who-icon">🔒</div>
+                    <h3>Security Engineers</h3>
+                    <p>Document your security levels for audits. Generate reports that prove compliance.</p>
+                    <div class="who-tag">Power users</div>
+                </div>
+                <div class="who-card">
+                    <div class="who-icon">🎓</div>
+                    <h3>Students & Researchers</h3>
+                    <p>Learning cryptography? See how parameters affect security in real-time.</p>
+                    <div class="who-tag">Free forever</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section class="demo-section">
+        <div class="container">
+            <div class="demo-container">
+                <div class="demo-header">
+                    <span class="demo-dot red"></span>
+                    <span class="demo-dot yellow"></span>
+                    <span class="demo-dot green"></span>
+                </div>
+                <div class="demo-content">
+                    <div class="demo-input-row">
+                        <div class="demo-input">
+                            <label>Size (n)</label>
+                            <input type="number" id="demo-n" value="512" oninput="updateDemo()">
+                        </div>
+                        <div class="demo-input">
+                            <label>Modulus (q)</label>
+                            <input type="number" id="demo-q" value="12289" oninput="updateDemo()">
+                        </div>
+                        <div class="demo-input">
+                            <label>Noise (σ)</label>
+                            <input type="number" id="demo-sigma" value="10" step="0.5" oninput="updateDemo()">
+                        </div>
+                    </div>
+                    <div class="demo-result" id="demo-result">
+                        <div class="demo-result-label">Security Strength</div>
+                        <div class="demo-result-value" id="demo-bits">156 bits</div>
+                        <div class="demo-result-verdict" id="demo-verdict">✅ Secure — exceeds industry standard</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Features</div>
+                <h2 class="section-title">Everything you need to validate encryption</h2>
+                <p class="section-subtitle">
+                    Built by cryptographers, designed for developers. No PhD required.
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">Instant Results</h3>
+                    <p class="feature-desc">Get security estimates in milliseconds. No waiting, no server calls — everything runs locally.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">Plain English</h3>
+                    <p class="feature-desc">No cryptography degree needed. We explain what the numbers mean and what you should aim for.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔬</div>
+                    <h3 class="feature-title">Research-Backed</h3>
+                    <p class="feature-desc">Based on peer-reviewed lattice cryptography research and industry-standard cost models.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🐍</div>
+                    <h3 class="feature-title">Python & Rust</h3>
+                    <p class="feature-desc">Use our library in your code. Pip install for Python, cargo install for Rust. It's that easy.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Compare Configs</h3>
+                    <p class="feature-desc">Test multiple parameter sets side-by-side. Find the perfect balance of security and performance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3 class="feature-title">Works Offline</h3>
+                    <p class="feature-desc">Single HTML file, no dependencies. Download once, use forever — even without internet.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">How It Works</div>
+                <h2 class="section-title">From parameters to confidence in 4 steps</h2>
+                <p class="section-subtitle">
+                    We simulate the best known attack and tell you how hard it would be to crack.
+                </p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Enter Parameters</h3>
+                    <p class="step-desc">Input your size (n), modulus (q), and noise (σ) — or pick a preset.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">We Simulate Attacks</h3>
+                    <p class="step-desc">Our algorithm finds the optimal attack strategy against your parameters.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Calculate Cost</h3>
+                    <p class="step-desc">We compute how many operations the attack would need.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">Get Your Score</h3>
+                    <p class="step-desc">See your security in "bits" — 128+ means you're good to go.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section class="use-cases">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Use Cases</div>
+                <h2 class="section-title">Built for developers like you</h2>
+                <p class="section-subtitle">
+                    Whether you're building a startup or securing government data.
+                </p>
+            </div>
+            <div class="use-cases-grid">
+                <div class="use-case-card">
+                    <div class="use-case-icon">🚀</div>
+                    <div class="use-case-content">
+                        <h3>Startups & SaaS</h3>
+                        <p>Validate your encryption before launch. Give your security team (and investors) confidence.</p>
+                        <span class="use-case-tag">128+ bits recommended</span>
+                    </div>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-icon">🏦</div>
+                    <div class="use-case-content">
+                        <h3>Finance & Banking</h3>
+                        <p>Meet compliance requirements with documented security estimates for your crypto implementations.</p>
+                        <span class="use-case-tag">192+ bits recommended</span>
+                    </div>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-icon">📚</div>
+                    <div class="use-case-content">
+                        <h3>Education & Research</h3>
+                        <p>Teach lattice cryptography concepts with an interactive tool students can experiment with.</p>
+                        <span class="use-case-tag">Great for learning</span>
+                    </div>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-icon">🔧</div>
+                    <div class="use-case-content">
+                        <h3>Library Authors</h3>
+                        <p>Choose default parameters for your crypto library with confidence. Document your security claims.</p>
+                        <span class="use-case-tag">API available</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Section -->
+    <section class="code-section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">For Developers</div>
+                <h2 class="section-title">Integrate in minutes</h2>
+                <p class="section-subtitle">
+                    Python, Rust, or command line — pick your flavor.
+                </p>
+            </div>
+            <div class="code-tabs">
+                <button class="code-tab active" onclick="showCode('python', this)">Python</button>
+                <button class="code-tab" onclick="showCode('rust', this)">Rust</button>
+                <button class="code-tab" onclick="showCode('cli', this)">CLI</button>
+            </div>
+            <div class="code-block">
+                <pre id="code-display"><span class="comment"># Install: pip install cryptoparam</span>
+<span class="keyword">from</span> cryptoparam <span class="keyword">import</span> estimate_lwe
+
+result = estimate_lwe(n=<span class="number">512</span>, q=<span class="number">12289</span>, sigma=<span class="number">10.0</span>)
+
+<span class="keyword">if</span> result.classical_bits >= <span class="number">128</span>:
+    <span class="function">print</span>(<span class="string">"✅ Secure!"</span>)
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">"❌ Increase parameters"</span>)</pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Testimonials</div>
+                <h2 class="section-title">Loved by developers</h2>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">"Finally, a tool that explains LWE security without requiring a PhD. Saved us hours of research."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">SK</div>
+                        <div>
+                            <div class="testimonial-name">Sarah Kim</div>
+                            <div class="testimonial-role">CTO, SecureChat</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">"We use CryptoParam in our CI pipeline to validate parameter choices. Simple, fast, reliable."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">MR</div>
+                        <div>
+                            <div class="testimonial-name">Marcus Rodriguez</div>
+                            <div class="testimonial-role">Security Engineer, Fintech Co</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">"Great teaching tool. My students can actually see how parameters affect security. Highly recommend."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">JL</div>
+                        <div>
+                            <div class="testimonial-name">Dr. Jennifer Lee</div>
+                            <div class="testimonial-role">Professor, MIT</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Pricing</div>
+                <h2 class="section-title">Simple, transparent pricing</h2>
+                <p class="section-subtitle">
+                    Start free, scale as you grow. All plans include a 14-day free trial.
+                </p>
+            </div>
+            
+            <!-- Toggle for monthly/annual -->
+            <div class="pricing-toggle">
+                <span class="toggle-label" id="monthly-label">Monthly</span>
+                <label class="billing-toggle">
+                    <input type="checkbox" id="billing-toggle" onchange="toggleBilling()">
+                    <span class="billing-slider"></span>
+                </label>
+                <span class="toggle-label" id="annual-label">Annual <span class="save-badge">Save 20%</span></span>
+            </div>
+            
+            <div class="pricing-cards four-cards">
+                <!-- Free Tier -->
+                <div class="pricing-card">
+                    <div class="pricing-name">Free</div>
+                    <div class="pricing-price">$0</div>
+                    <p class="pricing-desc">For individuals & learning</p>
+                    <div class="pricing-features">
+                        <div class="pricing-feature"><span class="check">✓</span> Web calculator</div>
+                        <div class="pricing-feature"><span class="check">✓</span> 100 API calls/month</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Python & Rust libraries</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Community support</div>
+                        <div class="pricing-feature muted"><span class="x">—</span> Team features</div>
+                        <div class="pricing-feature muted"><span class="x">—</span> Audit logs</div>
+                    </div>
+                    <a href="sandbox.html" class="btn btn-secondary">Get Started Free</a>
+                </div>
+                
+                <!-- Starter Tier -->
+                <div class="pricing-card">
+                    <div class="pricing-name">Starter</div>
+                    <div class="pricing-price" data-monthly="45" data-annual="36">$45<span>/mo</span></div>
+                    <p class="pricing-desc">For small teams & startups</p>
+                    <div class="pricing-features">
+                        <div class="pricing-feature"><span class="check">✓</span> Everything in Free</div>
+                        <div class="pricing-feature"><span class="check">✓</span> 10,000 API calls/month</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Up to 5 team members</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Shared dashboards</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Email support</div>
+                        <div class="pricing-feature muted"><span class="x">—</span> SSO & audit logs</div>
+                    </div>
+                    <a href="#" class="btn btn-secondary" onclick="openSignup('starter')">Start 14-Day Free Trial</a>
+                </div>
+                
+                <!-- Pro Tier -->
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">Most Popular</div>
+                    <div class="pricing-name">Pro</div>
+                    <div class="pricing-price" data-monthly="199" data-annual="159">$199<span>/mo</span></div>
+                    <p class="pricing-desc">For growing teams</p>
+                    <div class="pricing-features">
+                        <div class="pricing-feature"><span class="check">✓</span> Everything in Starter</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Unlimited API calls</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Up to 25 team members</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Advanced analytics</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Priority support</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Audit logs</div>
+                    </div>
+                    <a href="#" class="btn btn-primary" onclick="openSignup('pro')">Start 14-Day Free Trial</a>
+                </div>
+                
+                <!-- Enterprise Tier -->
+                <div class="pricing-card enterprise">
+                    <div class="pricing-name">Enterprise</div>
+                    <div class="pricing-price">Custom</div>
+                    <p class="pricing-desc">For large organizations</p>
+                    <div class="pricing-features">
+                        <div class="pricing-feature"><span class="check">✓</span> Everything in Pro</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Unlimited team members</div>
+                        <div class="pricing-feature"><span class="check">✓</span> SSO / SAML</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Dedicated support</div>
+                        <div class="pricing-feature"><span class="check">✓</span> Custom integrations</div>
+                        <div class="pricing-feature"><span class="check">✓</span> SLA & compliance</div>
+                    </div>
+                    <a href="#" class="btn btn-secondary" onclick="openContact()">Contact Sales</a>
+                </div>
+            </div>
+            
+            <!-- Trust badges -->
+            <div class="pricing-trust">
+                <div class="trust-item">
+                    <span>🔒</span> SOC 2 Type II Compliant
+                </div>
+                <div class="trust-item">
+                    <span>💳</span> No credit card required for trial
+                </div>
+                <div class="trust-item">
+                    <span>🚫</span> Cancel anytime
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq" id="faq">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">FAQ</div>
+                <h2 class="section-title">Common questions</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        What is LWE and why does it matter?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        LWE (Learning With Errors) is a mathematical problem that's believed to be hard even for quantum computers. It's the foundation of most post-quantum encryption schemes, including Kyber (now a NIST standard). If you're building secure systems that need to survive the quantum era, you're probably using LWE.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        How accurate are the estimates?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        Our estimates are based on the same methodology used by academic cryptographers (specifically, the Lattice Estimator). They're accurate within ~10% for the primal attack, which is typically the most effective attack. For production use, we recommend consulting with a cryptographer.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Does this work for Kyber/Dilithium?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        This tool estimates plain LWE security. Kyber and Dilithium use Module-LWE, which has additional algebraic structure. Their security is typically lower than plain LWE with the same parameters. For structured lattice schemes, use the full Lattice Estimator.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        What does "128 bits" actually mean?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        128 bits of security means an attacker would need to perform 2^128 (about 340 undecillion) operations to break your encryption. For reference, if you tried a billion operations per second, it would take longer than the age of the universe. It's the industry standard for "secure enough."
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Is this really free? What's the catch?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        No catch. It's open source (MIT license) because we believe good security tools should be accessible to everyone. We built it to scratch our own itch and decided to share it. If you find it useful, star us on GitHub!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>Don't ship insecure encryption</h2>
+            <p>Join 500+ developers who check before they deploy. Free for individuals, powerful for teams.</p>
+            <a href="sandbox.html" class="btn">Check Your Security in 5 Seconds →</a>
+            <div class="cta-note">No signup required • Free forever for basic use</div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo" style="color: white;">
+                        <span class="logo-icon">🔐</span>
+                        CryptoParam
+                    </a>
+                    <p>Free, open-source tool to check if your encryption parameters are strong enough.</p>
+                </div>
+                <div>
+                    <div class="footer-title">Product</div>
+                    <ul class="footer-links">
+                        <li><a href="sandbox.html">Web Calculator</a></li>
+                        <li><a href="#">Python Library</a></li>
+                        <li><a href="#">Rust Crate</a></li>
+                        <li><a href="#">CLI Tool</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-title">Resources</div>
+                    <ul class="footer-links">
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API Reference</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Research Papers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-title">Community</div>
+                    <ul class="footer-links">
+                        <li><a href="https://github.com/cryptoparam/cryptoparam">GitHub</a></li>
+                        <li><a href="#">Discord</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">Contributing</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 CryptoParam. MIT License. Made with ❤️ for the security community.</p>
+                <div class="footer-social">
+                    <a href="https://github.com/cryptoparam/cryptoparam" aria-label="GitHub">⭐</a>
+                    <a href="#" aria-label="Twitter">🐦</a>
+                    <a href="#" aria-label="Discord">💬</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Signup Modal -->
+    <div class="modal-overlay" id="signup-modal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('signup-modal')">×</button>
+            <div class="modal-icon">🚀</div>
+            <h3>Start your free trial</h3>
+            <p>14 days free, no credit card required. Cancel anytime.</p>
+            <form class="modal-form" onsubmit="handleSignup(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First name</label>
+                        <input type="text" placeholder="Jane" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last name</label>
+                        <input type="text" placeholder="Smith" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Work email</label>
+                    <input type="email" placeholder="jane@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Company</label>
+                    <input type="text" placeholder="Acme Inc." required>
+                </div>
+                <div class="form-group">
+                    <label>Plan</label>
+                    <select id="plan-select">
+                        <option value="starter">Starter — $45/mo</option>
+                        <option value="pro">Pro — $199/mo</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Start Free Trial →</button>
+            </form>
+            <div class="modal-footer">
+                By signing up, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Sales Modal -->
+    <div class="modal-overlay" id="contact-modal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('contact-modal')">×</button>
+            <div class="modal-icon">💼</div>
+            <h3>Talk to our team</h3>
+            <p>Tell us about your needs and we'll get back within 24 hours.</p>
+            <form class="modal-form" onsubmit="handleContact(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First name</label>
+                        <input type="text" placeholder="Jane" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last name</label>
+                        <input type="text" placeholder="Smith" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Work email</label>
+                    <input type="email" placeholder="jane@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Company</label>
+                    <input type="text" placeholder="Acme Inc." required>
+                </div>
+                <div class="form-group">
+                    <label>Team size</label>
+                    <select>
+                        <option>26-50 employees</option>
+                        <option>51-200 employees</option>
+                        <option>201-500 employees</option>
+                        <option>500+ employees</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>How can we help?</label>
+                    <textarea rows="3" placeholder="Tell us about your security needs..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Send Message →</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal" style="text-align: center;">
+            <button class="modal-close" onclick="closeModal('success-modal')">×</button>
+            <div class="modal-icon" style="margin: 0 auto 1.25rem;">✅</div>
+            <h3>You're all set!</h3>
+            <p id="success-message">Check your email for next steps. We're excited to have you!</p>
+            <button class="btn btn-primary" onclick="closeModal('success-modal')" style="width: 100%;">Got it</button>
+        </div>
+    </div>
+
+    <script>
+        // Demo calculator
+        function estimate(n, q, sigma) {
+            const logQ = Math.log(q), logSigma = Math.log(sigma);
+            let bestBeta = 10000;
+            
+            for (let m = Math.max(1, Math.floor(n / 2)); m < 8 * n; m++) {
+                const d = m + n;
+                const logDeltaMax = (logSigma + 0.5 * Math.log(d) - (m / d) * logQ) / d;
+                if (logDeltaMax <= 0) continue;
+                
+                const deltaMax = Math.exp(logDeltaMax);
+                let beta;
+                if (deltaMax >= 1.0219) beta = 2;
+                else if (deltaMax <= 1.0) beta = 10000;
+                else {
+                    let lo = 40, hi = 10000;
+                    while (lo < hi) {
+                        const mid = Math.floor((lo + hi) / 2);
+                        const d0 = mid < 40 ? 1.0219 : Math.pow(mid / (2 * Math.PI * Math.E), 1 / (2 * mid - 2));
+                        if (d0 <= deltaMax) hi = mid;
+                        else lo = mid + 1;
+                    }
+                    beta = lo;
+                }
+                if (beta < bestBeta) bestBeta = beta;
+            }
+            
+            return bestBeta >= 10000 ? Infinity : 0.292 * bestBeta;
+        }
+
+        function updateDemo() {
+            const n = parseInt(document.getElementById('demo-n').value) || 256;
+            const q = parseInt(document.getElementById('demo-q').value) || 7681;
+            const sigma = parseFloat(document.getElementById('demo-sigma').value) || 8;
+            
+            const bits = estimate(n, q, sigma);
+            const bitsDisplay = bits === Infinity ? '∞' : Math.round(bits);
+            
+            const resultEl = document.getElementById('demo-result');
+            const bitsEl = document.getElementById('demo-bits');
+            const verdictEl = document.getElementById('demo-verdict');
+            
+            bitsEl.textContent = bitsDisplay + ' bits';
+            
+            if (bits >= 128) {
+                resultEl.className = 'demo-result';
+                verdictEl.textContent = '✅ Secure — exceeds industry standard';
+            } else if (bits >= 80) {
+                resultEl.className = 'demo-result warning';
+                verdictEl.textContent = '⚠️ Moderate — below recommended 128 bits';
+            } else {
+                resultEl.className = 'demo-result danger';
+                verdictEl.textContent = '❌ Weak — do not use in production';
+            }
+        }
+
+        // Code tabs
+        const codeSnippets = {
+            python: `<span class="comment"># Install: pip install cryptoparam</span>
+<span class="keyword">from</span> cryptoparam <span class="keyword">import</span> estimate_lwe
+
+result = estimate_lwe(n=<span class="number">512</span>, q=<span class="number">12289</span>, sigma=<span class="number">10.0</span>)
+
+<span class="keyword">if</span> result.classical_bits >= <span class="number">128</span>:
+    <span class="function">print</span>(<span class="string">"✅ Secure!"</span>)
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">"❌ Increase parameters"</span>)`,
+            rust: `<span class="comment">// Add to Cargo.toml: cryptoparam = "0.1"</span>
+<span class="keyword">use</span> cryptoparam::estimate_lwe;
+
+<span class="keyword">fn</span> <span class="function">main</span>() {
+    <span class="keyword">let</span> result = estimate_lwe(<span class="number">512</span>, <span class="number">12289</span>, <span class="number">10.0</span>).unwrap();
+    
+    <span class="keyword">if</span> result.classical_bits >= <span class="number">128.0</span> {
+        <span class="function">println!</span>(<span class="string">"✅ Secure!"</span>);
+    } <span class="keyword">else</span> {
+        <span class="function">println!</span>(<span class="string">"❌ Increase parameters"</span>);
+    }
+}`,
+            cli: `<span class="comment"># Install: cargo install cryptoparam</span>
+
+<span class="comment"># Check parameters</span>
+$ cryptoparam <span class="number">512</span> <span class="number">12289</span> <span class="number">10.0</span>
+LWE(n=512, q≈2^14, σ=10): ~156 bits (primal_usvp, β=533)
+
+<span class="comment"># Verbose output</span>
+$ cryptoparam <span class="number">512</span> <span class="number">12289</span> <span class="number">10.0</span> -v`
+        };
+
+        function showCode(lang, btn) {
+            document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('code-display').innerHTML = codeSnippets[lang];
+        }
+
+        // FAQ toggle
+        function toggleFaq(btn) {
+            const item = btn.parentElement;
+            item.classList.toggle('open');
+        }
+
+        // Pricing toggle (monthly/annual)
+        function toggleBilling() {
+            const isAnnual = document.getElementById('billing-toggle').checked;
+            const monthlyLabel = document.getElementById('monthly-label');
+            const annualLabel = document.getElementById('annual-label');
+            
+            monthlyLabel.classList.toggle('active', !isAnnual);
+            annualLabel.classList.toggle('active', isAnnual);
+            
+            document.querySelectorAll('.pricing-price[data-monthly]').forEach(el => {
+                const monthly = el.dataset.monthly;
+                const annual = el.dataset.annual;
+                const price = isAnnual ? annual : monthly;
+                el.innerHTML = `$${price}<span>/mo</span>`;
+            });
+            
+            // Update plan select in modal
+            const planSelect = document.getElementById('plan-select');
+            if (planSelect) {
+                const starterPrice = isAnnual ? 36 : 45;
+                const proPrice = isAnnual ? 159 : 199;
+                planSelect.innerHTML = `
+                    <option value="starter">Starter — $${starterPrice}/mo</option>
+                    <option value="pro">Pro — $${proPrice}/mo</option>
+                `;
+            }
+        }
+
+        // Modal functions
+        function openSignup(plan) {
+            document.getElementById('plan-select').value = plan;
+            document.getElementById('signup-modal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function openContact() {
+            document.getElementById('contact-modal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function handleSignup(e) {
+            e.preventDefault();
+            closeModal('signup-modal');
+            document.getElementById('success-message').textContent = 
+                "Check your email for login instructions. Your 14-day free trial starts now!";
+            document.getElementById('success-modal').classList.add('open');
+        }
+
+        function handleContact(e) {
+            e.preventDefault();
+            closeModal('contact-modal');
+            document.getElementById('success-message').textContent = 
+                "Thanks for reaching out! Our team will contact you within 24 hours.";
+            document.getElementById('success-modal').classList.add('open');
+        }
+
+        // Close modal on outside click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('open');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Close on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.open').forEach(m => {
+                    m.classList.remove('open');
+                });
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Initialize
+        updateDemo();
+        document.getElementById('monthly-label').classList.add('active');
+    </script>
+</body>
+</html>

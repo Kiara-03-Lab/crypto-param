@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoParam - Is My Encryption Strong Enough?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Light, accessible color palette */
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-input: #f1f5f9;
+            --bg-hover: #e2e8f0;
+            
+            --border: #e2e8f0;
+            --border-focus: #3b82f6;
+            
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            
+            /* Semantic colors - WCAG AA compliant */
+            --success: #059669;
+            --success-bg: #d1fae5;
+            --success-border: #6ee7b7;
+            
+            --warning: #d97706;
+            --warning-bg: #fef3c7;
+            --warning-border: #fcd34d;
+            
+            --danger: #dc2626;
+            --danger-bg: #fee2e2;
+            --danger-border: #fca5a5;
+            
+            --info: #2563eb;
+            --info-bg: #dbeafe;
+            --info-border: #93c5fd;
+            
+            /* Primary action */
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-text: #ffffff;
+            
+            /* Sizing */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-page: #0f172a;
+                --bg-card: #1e293b;
+                --bg-input: #334155;
+                --bg-hover: #475569;
+                
+                --border: #334155;
+                --border-focus: #60a5fa;
+                
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+                --text-muted: #94a3b8;
+                --text-light: #64748b;
+                
+                --success-bg: #064e3b;
+                --warning-bg: #78350f;
+                --danger-bg: #7f1d1d;
+                --info-bg: #1e3a8a;
+                
+                --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+                --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
+                --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Skip to main content - accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: var(--info-bg);
+            border: 2px solid var(--info-border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .welcome-banner h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .welcome-banner p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .welcome-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .welcome-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-card);
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .dismiss-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0.25rem;
+            line-height: 1;
+            border-radius: var(--radius-sm);
+        }
+
+        .dismiss-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .dismiss-btn:focus {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        /* Main Result Display */
+        .result-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-display {
+            margin: 1rem 0;
+        }
+
+        .result-number {
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .result-number.safe { color: var(--success); }
+        .result-number.moderate { color: var(--warning); }
+        .result-number.weak { color: var(--danger); }
+
+        .result-unit {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-left: 0.25rem;
+            font-weight: 500;
+        }
+
+        .result-verdict {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin: 0.75rem 0;
+        }
+
+        .result-verdict.safe {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid var(--success-border);
+        }
+
+        .result-verdict.moderate {
+            background: var(--warning-bg);
+            color: var(--warning);
+            border: 1px solid var(--warning-border);
+        }
+
+        .result-verdict.weak {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid var(--danger-border);
+        }
+
+        .result-comparison {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Security Scale */
+        .security-scale {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .scale-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .scale-header span {
+            color: var(--text-secondary);
+        }
+
+        .scale-bar-container {
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .scale-bar {
+            height: 12px;
+            background: linear-gradient(to right, 
+                var(--danger) 0%, 
+                var(--warning) 40%, 
+                var(--success) 70%
+            );
+            border-radius: 6px;
+            position: relative;
+        }
+
+        .scale-marker {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: var(--bg-card);
+            border: 3px solid var(--text-primary);
+            border-radius: 50%;
+            box-shadow: var(--shadow-md);
+            transition: left 0.3s ease;
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .scale-label {
+            text-align: center;
+            width: 50px;
+        }
+
+        .scale-label.current {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Goal Box */
+        .goal-box {
+            background: var(--success-bg);
+            border: 1px solid var(--success-border);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .goal-box strong {
+            color: var(--success);
+        }
+
+        /* Presets */
+        .presets-section {
+            margin-bottom: 1.25rem;
+        }
+
+        .presets-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .presets-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .preset-btn {
+            padding: 0.75rem;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--primary);
+            background: var(--bg-card);
+        }
+
+        .preset-btn:focus {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        .preset-btn.recommended {
+            border-color: var(--success);
+            background: var(--success-bg);
+        }
+
+        .preset-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            display: block;
+        }
+
+        .preset-bits {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .recommended-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--success);
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* Input Groups */
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-label {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .input-value {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .input-help {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .input-help .warning-icon {
+            color: var(--warning);
+        }
+
+        /* Help Button */
+        .help-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            cursor: help;
+            position: relative;
+            font-weight: 600;
+        }
+
+        .help-btn:hover,
+        .help-btn:focus {
+            background: var(--bg-hover);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .help-btn:focus {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.75rem;
+            width: 240px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            box-shadow: var(--shadow-lg);
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.15s ease;
+            font-weight: 400;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--border);
+        }
+
+        .help-btn:hover .tooltip,
+        .help-btn:focus .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip strong {
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Range Slider */
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--bg-input);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]:focus {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 4px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid var(--bg-card);
+            box-shadow: var(--shadow-md);
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid var(--bg-card);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Number Input */
+        input[type="number"] {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.15s ease;
+        }
+
+        input[type="number"]:hover {
+            border-color: var(--text-muted);
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Quick Value Buttons */
+        .quick-values {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.375rem;
+            margin-top: 0.5rem;
+        }
+
+        .quick-value-btn {
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+        }
+
+        .quick-value-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--info-bg);
+        }
+
+        .quick-value-btn:focus {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        /* Toggle Switch */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            background: var(--bg-input);
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+        }
+
+        .toggle-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .toggle {
+            position: relative;
+            width: 48px;
+            height: 26px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle input:focus + .toggle-track {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        .toggle-track {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: var(--bg-hover);
+            border-radius: 13px;
+            transition: 0.2s;
+        }
+
+        .toggle-track::before {
+            position: absolute;
+            content: '';
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle input:checked + .toggle-track {
+            background: var(--primary);
+        }
+
+        .toggle input:checked + .toggle-track::before {
+            transform: translateX(22px);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 2px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            border-color: var(--text-muted);
+            background: var(--bg-input);
+        }
+
+        .btn:focus {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--primary-text);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 500px) {
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Use Case Wizard */
+        .wizard-section {
+            margin-top: 1rem;
+        }
+
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 700px) {
+            .use-case-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .use-case-btn {
+            padding: 1rem;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+        }
+
+        .use-case-btn:hover {
+            border-color: var(--primary);
+            background: var(--bg-card);
+        }
+
+        .use-case-btn:focus {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        .use-case-icon {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .use-case-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .use-case-target {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Collapsible Sections */
+        .collapsible-toggle {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: inherit;
+            transition: all 0.15s ease;
+        }
+
+        .collapsible-toggle:hover {
+            background: var(--bg-input);
+        }
+
+        .collapsible-toggle:focus {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        .collapsible-toggle .icon {
+            transition: transform 0.2s ease;
+        }
+
+        .collapsible-toggle.open .icon {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            display: none;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .collapsible-content.open {
+            display: block;
+        }
+
+        /* Details Grid */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 500px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .detail-item {
+            background: var(--bg-input);
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .detail-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 0.25rem;
+        }
+
+        /* Comparison Table */
+        .comparison-empty {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th {
+            text-align: left;
+            padding: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            border-bottom: 2px solid var(--border);
+            background: var(--bg-input);
+        }
+
+        .comparison-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .comparison-table tbody tr:hover {
+            background: var(--bg-input);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge.safe { 
+            background: var(--success-bg); 
+            color: var(--success);
+            border: 1px solid var(--success-border);
+        }
+        .badge.moderate { 
+            background: var(--warning-bg); 
+            color: var(--warning);
+            border: 1px solid var(--warning-border);
+        }
+        .badge.weak { 
+            background: var(--danger-bg); 
+            color: var(--danger);
+            border: 1px solid var(--danger-border);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            font-size: 1.1rem;
+            border-radius: var(--radius-sm);
+        }
+
+        .delete-btn:hover {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .delete-btn:focus {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        /* Code Section */
+        .code-tabs {
+            display: flex;
+            gap: 0.375rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .code-tab {
+            padding: 0.5rem 0.875rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+
+        .code-tab:hover {
+            background: var(--bg-card);
+            border-color: var(--text-muted);
+        }
+
+        .code-tab:focus {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        .code-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .install-note {
+            background: var(--info-bg);
+            border: 1px solid var(--info-border);
+            border-radius: var(--radius-md);
+            padding: 0.625rem 0.875rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .install-note code {
+            background: var(--bg-card);
+            padding: 0.125rem 0.375rem;
+            border-radius: var(--radius-sm);
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 0.8rem;
+        }
+
+        .code-block {
+            background: var(--bg-input);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .code-block .comment { color: var(--text-muted); }
+        .code-block .keyword { color: #d946ef; }
+        .code-block .function { color: var(--success); }
+        .code-block .number { color: #f59e0b; }
+        .code-block .string { color: var(--primary); }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.375rem 0.625rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .copy-btn:focus {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        /* Learn Section */
+        .learn-content h3 {
+            font-size: 1rem;
+            margin: 1.5rem 0 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .learn-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .learn-content p {
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .analogy-box {
+            background: var(--info-bg);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .analogy-box strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .steps-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .steps-list li {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.625rem 0;
+            border-bottom: 1px solid var(--border);
+            align-items: flex-start;
+        }
+
+        .steps-list li:last-child {
+            border-bottom: none;
+        }
+
+        .step-text strong {
+            color: var(--text-primary);
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .step-text span {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 2rem;
+            padding: 1.5rem 1rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: var(--bg-input);
+            padding: 0.375rem 0.75rem;
+            border-radius: 100px;
+        }
+
+        .footer-links {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 1rem;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            line-height: 1;
+            border-radius: var(--radius-sm);
+        }
+
+        .modal-close:hover {
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+
+        .modal-close:focus {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+
+        .share-input {
+            width: 100%;
+            padding: 0.625rem;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .share-input:focus {
+            outline: none;
+            border-color: var(--border-focus);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text-primary);
+            color: var(--bg-card);
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 101;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Accessibility: Reduce motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus visible for keyboard navigation */
+        :focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1 class="logo">
+                <span class="logo-icon">🔐</span>
+                CryptoParam
+            </h1>
+            <p class="tagline">Check if your encryption is strong enough</p>
+        </header>
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner" id="welcome-banner" role="region" aria-label="Welcome guide">
+            <button class="dismiss-btn" onclick="dismissWelcome()" aria-label="Dismiss welcome message">×</button>
+            <h2>👋 New here? Start in 3 steps:</h2>
+            <p>This tool measures how hard it would be to crack your encryption settings.</p>
+            <div class="welcome-steps">
+                <div class="welcome-step">
+                    <span class="step-number">1</span>
+                    <span>Click "Strong" below</span>
+                </div>
+                <div class="welcome-step">
+                    <span class="step-number">2</span>
+                    <span>See the big number</span>
+                </div>
+                <div class="welcome-step">
+                    <span class="step-number">3</span>
+                    <span>128+ means safe ✓</span>
+                </div>
+            </div>
+        </div>
+
+        <main id="main-content">
+            <!-- Result Card -->
+            <div class="card result-card" role="region" aria-label="Security result">
+                <div class="result-label">Your security strength</div>
+                <div class="result-display">
+                    <span class="result-number safe" id="result-number" aria-live="polite">73</span>
+                    <span class="result-unit">bits</span>
+                </div>
+                <div class="result-verdict moderate" id="result-verdict" role="status">
+                    ⚠️ Below recommended (aim for 128+)
+                </div>
+                <div class="result-comparison" id="result-comparison">
+                    Comparable to: Triple-DES (outdated standard)
+                </div>
+
+                <!-- Security Scale -->
+                <div class="security-scale">
+                    <div class="scale-header">
+                        <span>Weaker</span>
+                        <span>Stronger →</span>
+                    </div>
+                    <div class="scale-bar-container">
+                        <div class="scale-bar" role="img" aria-label="Security scale from 0 to 256 bits">
+                            <div class="scale-marker" id="scale-marker" style="left: 28%;" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                    <div class="scale-labels" aria-hidden="true">
+                        <span class="scale-label">0<br><small>Broken</small></span>
+                        <span class="scale-label">64<br><small>Weak</small></span>
+                        <span class="scale-label">128<br><small>Good ✓</small></span>
+                        <span class="scale-label">192<br><small>Strong</small></span>
+                        <span class="scale-label">256<br><small>Max</small></span>
+                    </div>
+                </div>
+
+                <div class="goal-box">
+                    <span aria-hidden="true">🎯</span>
+                    <span><strong>Your goal:</strong> Get to 128+ bits. That's the minimum for modern security.</span>
+                </div>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="card" role="region" aria-label="Settings">
+                <h2 class="card-title">⚙️ Adjust Settings</h2>
+
+                <!-- Presets -->
+                <div class="presets-section">
+                    <div class="presets-label">Quick start — pick a preset:</div>
+                    <div class="presets-grid" role="group" aria-label="Security presets">
+                        <button class="preset-btn" onclick="loadPreset('weak')">
+                            <span class="preset-name">Weak</span>
+                            <span class="preset-bits">~12 bits</span>
+                        </button>
+                        <button class="preset-btn" onclick="loadPreset('medium')">
+                            <span class="preset-name">Medium</span>
+                            <span class="preset-bits">~73 bits</span>
+                        </button>
+                        <button class="preset-btn recommended" onclick="loadPreset('strong')">
+                            <span class="recommended-badge">Recommended</span>
+                            <span class="preset-name">Strong</span>
+                            <span class="preset-bits">~156 bits</span>
+                        </button>
+                        <button class="preset-btn" onclick="loadPreset('maximum')">
+                            <span class="preset-name">Maximum</span>
+                            <span class="preset-bits">~300+ bits</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Size Input -->
+                <div class="input-group">
+                    <div class="input-header">
+                        <label class="input-label" for="n-slider">
+                            Size (n)
+                            <span class="help-btn" tabindex="0" role="button" aria-label="Help for Size parameter">
+                                ?
+                                <span class="tooltip" role="tooltip">
+                                    <strong>What is Size?</strong>
+                                    Like password length — bigger means harder to crack. This is how many numbers are in the secret code.
+                                </span>
+                            </span>
+                        </label>
+                        <span class="input-value" id="n-value">256</span>
+                    </div>
+                    <div class="input-help">Bigger = stronger (like a longer password)</div>
+                    <input type="range" id="n-slider" min="32" max="2048" value="256" step="32" 
+                           oninput="updateParam('n')" aria-describedby="n-value">
+                </div>
+
+                <!-- Modulus Input -->
+                <div class="input-group">
+                    <div class="input-header">
+                        <label class="input-label" for="q-input">
+                            Modulus (q)
+                            <span class="help-btn" tabindex="0" role="button" aria-label="Help for Modulus parameter">
+                                ?
+                                <span class="tooltip" role="tooltip">
+                                    <strong>What is Modulus?</strong>
+                                    Like how many possible characters you can use. More options = harder to guess. Use the suggested values below.
+                                </span>
+                            </span>
+                        </label>
+                        <span class="input-value" id="q-value">7,681</span>
+                    </div>
+                    <div class="input-help">More variety = stronger</div>
+                    <input type="number" id="q-input" value="7681" min="2" oninput="updateParam('q')">
+                    <div class="quick-values">
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Common:</span>
+                        <button class="quick-value-btn" onclick="setQ(3329)">3,329</button>
+                        <button class="quick-value-btn" onclick="setQ(7681)">7,681</button>
+                        <button class="quick-value-btn" onclick="setQ(12289)">12,289</button>
+                        <button class="quick-value-btn" onclick="setQ(65537)">65,537</button>
+                    </div>
+                </div>
+
+                <!-- Sigma Input -->
+                <div class="input-group">
+                    <div class="input-header">
+                        <label class="input-label" for="sigma-slider">
+                            Noise (σ)
+                            <span class="help-btn" tabindex="0" role="button" aria-label="Help for Noise parameter">
+                                ?
+                                <span class="tooltip" role="tooltip">
+                                    <strong>What is Noise?</strong>
+                                    Adds randomness to hide the secret. But here's the trick: MORE noise actually makes it EASIER to crack. Keep it balanced.
+                                </span>
+                            </span>
+                        </label>
+                        <span class="input-value" id="sigma-value">8.0</span>
+                    </div>
+                    <div class="input-help">
+                        <span class="warning-icon">⚠️</span>
+                        Counter-intuitive: more noise = weaker!
+                    </div>
+                    <input type="range" id="sigma-slider" min="0.5" max="100" value="8" step="0.5" 
+                           oninput="updateParam('sigma')" aria-describedby="sigma-value">
+                </div>
+
+                <!-- Advanced Toggle -->
+                <div class="toggle-row">
+                    <div class="toggle-info">
+                        <span class="toggle-label">Assume strongest attacker</span>
+                        <span class="help-btn" tabindex="0" role="button" aria-label="Help for attacker model">
+                            ?
+                            <span class="tooltip" role="tooltip">
+                                <strong>What does this mean?</strong>
+                                OFF = Normal estimate (recommended)<br>
+                                ON = Worst-case scenario (paranoid mode)
+                            </span>
+                        </span>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" id="sieving-toggle" onchange="updateEstimate()" 
+                               aria-label="Use aggressive attacker model">
+                        <span class="toggle-track"></span>
+                    </label>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn" onclick="resetToDefault()">
+                        ↺ Reset
+                    </button>
+                    <button class="btn" onclick="openShareModal()">
+                        📤 Share
+                    </button>
+                    <button class="btn btn-primary" onclick="addToComparison()">
+                        + Compare
+                    </button>
+                </div>
+            </div>
+
+            <!-- Use Case Wizard -->
+            <div class="card wizard-section">
+                <h2 class="card-title">🧙 What are you building?</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                    Click your use case for recommended settings:
+                </p>
+                <div class="use-case-grid" role="group" aria-label="Use case recommendations">
+                    <button class="use-case-btn" onclick="loadUseCase('hobby')">
+                        <div class="use-case-icon">🎮</div>
+                        <div class="use-case-name">Hobby Project</div>
+                        <div class="use-case-target">80+ bits OK</div>
+                    </button>
+                    <button class="use-case-btn" onclick="loadUseCase('startup')">
+                        <div class="use-case-icon">🚀</div>
+                        <div class="use-case-name">Startup / SaaS</div>
+                        <div class="use-case-target">128+ bits</div>
+                    </button>
+                    <button class="use-case-btn" onclick="loadUseCase('finance')">
+                        <div class="use-case-icon">🏦</div>
+                        <div class="use-case-name">Finance</div>
+                        <div class="use-case-target">192+ bits</div>
+                    </button>
+                    <button class="use-case-btn" onclick="loadUseCase('government')">
+                        <div class="use-case-icon">🏛️</div>
+                        <div class="use-case-name">Government</div>
+                        <div class="use-case-target">256 bits</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Technical Details -->
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <button class="collapsible-toggle" id="details-toggle" onclick="toggleDetails()" 
+                        aria-expanded="false" aria-controls="details-content">
+                    <span>📊 Technical details</span>
+                    <span class="icon">▼</span>
+                </button>
+                <div class="collapsible-content" id="details-content" role="region">
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                Block Size (β)
+                                <span class="help-btn" tabindex="0">?
+                                    <span class="tooltip">Attack difficulty parameter. Higher = harder to crack.</span>
+                                </span>
+                            </div>
+                            <div class="detail-value" id="detail-beta">250</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                Lattice Dimension (d)
+                                <span class="help-btn" tabindex="0">?
+                                    <span class="tooltip">Total mathematical space size. d = n + m.</span>
+                                </span>
+                            </div>
+                            <div class="detail-value" id="detail-d">384</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                Samples (m)
+                                <span class="help-btn" tabindex="0">?
+                                    <span class="tooltip">Optimal number of equations used in attack.</span>
+                                </span>
+                            </div>
+                            <div class="detail-value" id="detail-m">128</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                Hermite Factor (δ)
+                                <span class="help-btn" tabindex="0">?
+                                    <span class="tooltip">Quality measure. Closer to 1.0 = more secure.</span>
+                                </span>
+                            </div>
+                            <div class="detail-value" id="detail-delta">1.0054</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Table -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 class="card-title" style="margin: 0;">📋 Compare Configurations</h2>
+                    <button class="btn" onclick="clearComparison()" id="clear-btn" style="display: none;">
+                        Clear All
+                    </button>
+                </div>
+                <div id="comparison-content">
+                    <div class="comparison-empty">
+                        <p style="margin-bottom: 0.5rem;">No configurations saved yet.</p>
+                        <p style="font-size: 0.85rem;">Click "+ Compare" above to save settings here.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Export -->
+            <div class="card">
+                <h2 class="card-title">💻 Use in Your Code</h2>
+                
+                <div class="install-note" id="install-note">
+                    <span>📦</span>
+                    <span>Install first: <code>pip install cryptoparam</code></span>
+                </div>
+
+                <div class="code-tabs" role="tablist">
+                    <button class="code-tab active" onclick="showCodeTab('python', this)" role="tab" aria-selected="true">
+                        Python
+                    </button>
+                    <button class="code-tab" onclick="showCodeTab('cli', this)" role="tab" aria-selected="false">
+                        Command Line
+                    </button>
+                    <button class="code-tab" onclick="showCodeTab('rust', this)" role="tab" aria-selected="false">
+                        Rust
+                    </button>
+                </div>
+
+                <div class="code-block" role="tabpanel">
+                    <button class="copy-btn" onclick="copyCode()">Copy</button>
+                    <pre id="code-content"></pre>
+                </div>
+            </div>
+
+            <!-- Learn Section -->
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <button class="collapsible-toggle" id="learn-toggle" onclick="toggleLearn()"
+                        aria-expanded="false" aria-controls="learn-content">
+                    <span>📚 How does this actually work?</span>
+                    <span class="icon">▼</span>
+                </button>
+                <div class="collapsible-content learn-content" id="learn-content" role="region">
+                    <h3>🔑 The Simple Explanation</h3>
+                    <p>
+                        You have a secret (like a password). This tool tests how hard it would be for 
+                        a hacker to figure it out using the best known methods.
+                    </p>
+
+                    <div class="analogy-box">
+                        <strong>Think of it like a safe:</strong>
+                        "Bits" = how many possible combinations the safe has.<br>
+                        128 bits = 340,000,000,000,000,000,000,000,000,000,000,000,000 combinations.<br>
+                        Even if you tried a billion per second, it would take longer than the universe has existed.
+                    </div>
+
+                    <h3>🎛️ What the settings do</h3>
+                    <ul class="steps-list">
+                        <li>
+                            <span class="step-number">n</span>
+                            <div class="step-text">
+                                <strong>Size — like password length</strong>
+                                <span>More digits = more possible combinations</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="step-number">q</span>
+                            <div class="step-text">
+                                <strong>Modulus — like character variety</strong>
+                                <span>Using a-z vs a-z + 0-9 + symbols</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="step-number">σ</span>
+                            <div class="step-text">
+                                <strong>Noise — the tricky one</strong>
+                                <span>Paradoxically, more noise makes it easier to crack!</span>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <h3>⚔️ What we calculate</h3>
+                    <p>
+                        We simulate the best attack (called "lattice reduction") and count how many 
+                        computer operations it would need. Then we convert that to "bits" — the standard 
+                        way to measure security.
+                    </p>
+
+                    <div class="analogy-box">
+                        <strong>Quick reference:</strong>
+                        80 bits = Breakable with huge effort (avoid)<br>
+                        128 bits = Safe for most uses (standard)<br>
+                        256 bits = Overkill, but why not?
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <div class="trust-badges">
+                <span class="trust-badge">🔬 Based on peer-reviewed research</span>
+                <span class="trust-badge">📖 Open source (MIT)</span>
+                <span class="trust-badge">⚠️ Estimates only</span>
+            </div>
+            <div class="footer-links">
+                CryptoParam v0.1.0 • 
+                <a href="https://github.com/cryptoparam/cryptoparam">View Source</a> • 
+                Based on <a href="https://github.com/malb/lattice-estimator">Lattice Estimator</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="modal-overlay" id="share-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">📤 Share These Settings</h3>
+                <button class="modal-close" onclick="closeShareModal()" aria-label="Close modal">×</button>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">
+                Copy this link to share your current configuration:
+            </p>
+            <input type="text" class="share-input" id="share-url" readonly aria-label="Shareable URL">
+            <button class="btn btn-primary" style="width: 100%;" onclick="copyShareUrl()">
+                Copy Link
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite">Copied!</div>
+
+    <script>
+        // ============================================================
+        // Core Math (same as Rust implementation)
+        // ============================================================
+        
+        function delta0(beta) {
+            if (beta < 40) return 1.0219 - (beta - 2) * (1.0219 - 1.0126) / 48;
+            return Math.pow(beta / (2 * Math.PI * Math.E), 1 / (2 * beta - 2));
+        }
+
+        function betaFromDelta(targetDelta) {
+            if (targetDelta >= 1.0219) return 2;
+            if (targetDelta <= 1.0) return 10000;
+            let lo = 40, hi = 10000;
+            while (lo < hi) {
+                const mid = Math.floor((lo + hi) / 2);
+                if (delta0(mid) <= targetDelta) hi = mid;
+                else lo = mid + 1;
+            }
+            return lo;
+        }
+
+        function estimate(n, q, sigma, sieving = false) {
+            let bestBeta = 10000, bestM = n, bestD = 2 * n;
+            const logQ = Math.log(q), logSigma = Math.log(sigma);
+            
+            for (let m = Math.max(1, Math.floor(n / 2)); m < 8 * n; m++) {
+                const d = m + n;
+                const logDeltaMax = (logSigma + 0.5 * Math.log(d) - (m / d) * logQ) / d;
+                if (logDeltaMax <= 0) continue;
+                const beta = betaFromDelta(Math.exp(logDeltaMax));
+                if (beta < bestBeta) { bestBeta = beta; bestM = m; bestD = d; }
+            }
+            
+            const bits = bestBeta >= 10000 ? Infinity : (sieving ? 0.265 : 0.292) * bestBeta;
+            return { n, q, sigma, beta: bestBeta, m: bestM, d: bestD, 
+                     bits: Math.round(bits * 10) / 10, delta: delta0(bestBeta).toFixed(4) };
+        }
+
+        // ============================================================
+        // State
+        // ============================================================
+        
+        let params = { n: 256, q: 7681, sigma: 8.0 };
+        let comparisons = [];
+        let codeTab = 'python';
+
+        const presets = {
+            weak: { n: 64, q: 127, sigma: 3.0 },
+            medium: { n: 256, q: 7681, sigma: 8.0 },
+            strong: { n: 512, q: 12289, sigma: 10.0 },
+            maximum: { n: 1024, q: 65537, sigma: 8.0 }
+        };
+
+        const useCases = {
+            hobby: { n: 256, q: 7681, sigma: 8.0 },
+            startup: { n: 512, q: 12289, sigma: 10.0 },
+            finance: { n: 768, q: 12289, sigma: 8.0 },
+            government: { n: 1024, q: 65537, sigma: 8.0 }
+        };
+
+        // ============================================================
+        // UI Updates
+        // ============================================================
+        
+        function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+        function updateParam(p) {
+            if (p === 'n') {
+                params.n = +document.getElementById('n-slider').value;
+                document.getElementById('n-value').textContent = params.n;
+            } else if (p === 'q') {
+                params.q = +document.getElementById('q-input').value || 2;
+                document.getElementById('q-value').textContent = fmt(params.q);
+            } else if (p === 'sigma') {
+                params.sigma = +document.getElementById('sigma-slider').value;
+                document.getElementById('sigma-value').textContent = params.sigma.toFixed(1);
+            }
+            updateEstimate();
+            updateURL();
+        }
+
+        function setQ(v) { document.getElementById('q-input').value = v; updateParam('q'); }
+
+        function setParams(p) {
+            params = { ...p };
+            document.getElementById('n-slider').value = p.n;
+            document.getElementById('n-value').textContent = p.n;
+            document.getElementById('q-input').value = p.q;
+            document.getElementById('q-value').textContent = fmt(p.q);
+            document.getElementById('sigma-slider').value = p.sigma;
+            document.getElementById('sigma-value').textContent = p.sigma.toFixed(1);
+            updateEstimate();
+            updateURL();
+        }
+
+        function loadPreset(name) { setParams(presets[name]); showToast(`Loaded "${name}" preset`); }
+        function loadUseCase(name) { setParams(useCases[name]); showToast(`Settings for ${name}`); }
+        function resetToDefault() { 
+            loadPreset('medium'); 
+            document.getElementById('sieving-toggle').checked = false;
+            showToast('Reset to default');
+        }
+
+        function updateEstimate() {
+            const sieving = document.getElementById('sieving-toggle').checked;
+            const r = estimate(params.n, params.q, params.sigma, sieving);
+            
+            let level, verdict, comparison;
+            if (r.bits >= 256 || r.beta >= 10000) {
+                level = 'safe'; verdict = '🛡️ Maximum security'; comparison = 'Equivalent to: AES-256 (top tier)';
+            } else if (r.bits >= 192) {
+                level = 'safe'; verdict = '✅ Very strong'; comparison = 'Equivalent to: AES-192';
+            } else if (r.bits >= 128) {
+                level = 'safe'; verdict = '✅ Secure — meets standard'; comparison = 'Equivalent to: AES-128 (recommended)';
+            } else if (r.bits >= 80) {
+                level = 'moderate'; verdict = '⚠️ Below recommended (aim for 128+)'; comparison = 'Comparable to: Triple-DES (outdated)';
+            } else {
+                level = 'weak'; verdict = '❌ Too weak — do not use'; comparison = 'Can be cracked with modern hardware';
+            }
+
+            const numEl = document.getElementById('result-number');
+            numEl.textContent = r.beta >= 10000 ? '∞' : Math.round(r.bits);
+            numEl.className = 'result-number ' + level;
+
+            const verdictEl = document.getElementById('result-verdict');
+            verdictEl.textContent = verdict;
+            verdictEl.className = 'result-verdict ' + level;
+
+            document.getElementById('result-comparison').textContent = comparison;
+            document.getElementById('scale-marker').style.left = Math.min(100, Math.max(0, r.bits / 2.56)) + '%';
+
+            document.getElementById('detail-beta').textContent = r.beta >= 10000 ? '∞' : r.beta;
+            document.getElementById('detail-d').textContent = r.d;
+            document.getElementById('detail-m').textContent = r.m;
+            document.getElementById('detail-delta').textContent = r.delta;
+
+            updateCode();
+        }
+
+        // ============================================================
+        // Comparison
+        // ============================================================
+        
+        function addToComparison() {
+            const sieving = document.getElementById('sieving-toggle').checked;
+            const r = estimate(params.n, params.q, params.sigma, sieving);
+            if (comparisons.some(c => c.n === r.n && c.q === r.q && c.sigma === r.sigma)) {
+                showToast('Already saved'); return;
+            }
+            comparisons.push(r);
+            renderComparison();
+            showToast('Added to comparison');
+        }
+
+        function removeComparison(i) { comparisons.splice(i, 1); renderComparison(); }
+        function clearComparison() { comparisons = []; renderComparison(); }
+
+        function renderComparison() {
+            const container = document.getElementById('comparison-content');
+            const clearBtn = document.getElementById('clear-btn');
+            
+            if (!comparisons.length) {
+                container.innerHTML = `<div class="comparison-empty">
+                    <p style="margin-bottom: 0.5rem;">No configurations saved yet.</p>
+                    <p style="font-size: 0.85rem;">Click "+ Compare" above to save settings here.</p>
+                </div>`;
+                clearBtn.style.display = 'none';
+                return;
+            }
+            
+            clearBtn.style.display = 'block';
+            container.innerHTML = `<table class="comparison-table">
+                <thead><tr><th>Size</th><th>Modulus</th><th>Noise</th><th>Security</th><th>Level</th><th></th></tr></thead>
+                <tbody>${comparisons.map((c, i) => {
+                    let level = c.bits >= 128 ? 'safe' : c.bits >= 80 ? 'moderate' : 'weak';
+                    let label = c.bits >= 128 ? '128+ ✓' : c.bits >= 80 ? '80-127' : 'Weak';
+                    if (c.beta >= 10000) label = 'Max';
+                    return `<tr>
+                        <td>${c.n}</td><td>${fmt(c.q)}</td><td>${c.sigma}</td>
+                        <td>${c.beta >= 10000 ? '∞' : Math.round(c.bits)} bits</td>
+                        <td><span class="badge ${level}">${label}</span></td>
+                        <td><button class="delete-btn" onclick="removeComparison(${i})" aria-label="Remove">×</button></td>
+                    </tr>`;
+                }).join('')}</tbody></table>`;
+        }
+
+        // ============================================================
+        // Code Export
+        // ============================================================
+        
+        function showCodeTab(tab, btn) {
+            codeTab = tab;
+            document.querySelectorAll('.code-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+            btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
+            
+            const note = document.getElementById('install-note');
+            if (tab === 'python') note.innerHTML = '<span>📦</span><span>Install first: <code>pip install cryptoparam</code></span>';
+            else if (tab === 'cli') note.innerHTML = '<span>📦</span><span>Download binary or: <code>cargo install cryptoparam</code></span>';
+            else note.innerHTML = '<span>📦</span><span>Add to Cargo.toml: <code>cryptoparam = "0.1"</code></span>';
+            
+            updateCode();
+        }
+
+        function updateCode() {
+            const { n, q, sigma } = params;
+            const sieving = document.getElementById('sieving-toggle').checked;
+            const r = estimate(n, q, sigma, sieving);
+            let code;
+            
+            if (codeTab === 'python') {
+                code = `<span class="comment"># Check your encryption strength</span>
+<span class="keyword">from</span> cryptoparam <span class="keyword">import</span> estimate_lwe
+
+result = estimate_lwe(n=<span class="number">${n}</span>, q=<span class="number">${q}</span>, sigma=<span class="number">${sigma}</span>)
+
+<span class="keyword">if</span> result.classical_bits >= <span class="number">128</span>:
+    <span class="function">print</span>(<span class="string">"✅ Secure!"</span>)
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">"❌ Too weak"</span>)`;
+            } else if (codeTab === 'cli') {
+                code = `<span class="comment"># Run from terminal</span>
+./cryptoparam <span class="number">${n}</span> <span class="number">${q}</span> <span class="number">${sigma}</span>
+
+<span class="comment"># Output: ~${Math.round(r.bits)} bits</span>`;
+            } else {
+                code = `<span class="keyword">use</span> cryptoparam::estimate_lwe;
+
+<span class="keyword">fn</span> <span class="function">main</span>() {
+    <span class="keyword">let</span> r = estimate_lwe(<span class="number">${n}</span>, <span class="number">${q}</span>, <span class="number">${sigma}</span>).unwrap();
+    <span class="function">println!</span>(<span class="string">"Security: {} bits"</span>, r.classical_bits);
+}`;
+            }
+            document.getElementById('code-content').innerHTML = code;
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(document.getElementById('code-content').innerText);
+            showToast('Code copied!');
+        }
+
+        // ============================================================
+        // UI Toggles & Helpers
+        // ============================================================
+        
+        function toggleDetails() {
+            const toggle = document.getElementById('details-toggle');
+            const content = document.getElementById('details-content');
+            const isOpen = content.classList.toggle('open');
+            toggle.classList.toggle('open', isOpen);
+            toggle.setAttribute('aria-expanded', isOpen);
+        }
+
+        function toggleLearn() {
+            const toggle = document.getElementById('learn-toggle');
+            const content = document.getElementById('learn-content');
+            const isOpen = content.classList.toggle('open');
+            toggle.classList.toggle('open', isOpen);
+            toggle.setAttribute('aria-expanded', isOpen);
+        }
+
+        function dismissWelcome() {
+            document.getElementById('welcome-banner').style.display = 'none';
+            localStorage.setItem('welcomed', '1');
+        }
+
+        function updateURL() {
+            const p = new URLSearchParams();
+            p.set('n', params.n); p.set('q', params.q); p.set('s', params.sigma);
+            if (document.getElementById('sieving-toggle').checked) p.set('adv', '1');
+            history.replaceState(null, '', '?' + p.toString());
+        }
+
+        function loadFromURL() {
+            const p = new URLSearchParams(location.search);
+            if (p.has('n')) {
+                params = { n: +p.get('n') || 256, q: +p.get('q') || 7681, sigma: +p.get('s') || 8 };
+                setParams(params);
+                if (p.get('adv') === '1') document.getElementById('sieving-toggle').checked = true;
+            }
+        }
+
+        function openShareModal() {
+            document.getElementById('share-url').value = location.href;
+            document.getElementById('share-modal').classList.add('open');
+            document.getElementById('share-url').select();
+        }
+
+        function closeShareModal() { document.getElementById('share-modal').classList.remove('open'); }
+
+        function copyShareUrl() {
+            navigator.clipboard.writeText(document.getElementById('share-url').value);
+            showToast('Link copied!');
+            closeShareModal();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // ============================================================
+        // Init
+        // ============================================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('welcomed')) document.getElementById('welcome-banner').style.display = 'none';
+            loadFromURL();
+            updateEstimate();
+        });
+
+        document.getElementById('share-modal').addEventListener('click', e => {
+            if (e.target.classList.contains('modal-overlay')) closeShareModal();
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeShareModal();
+        });
+    </script>
+</body>
+</html>
