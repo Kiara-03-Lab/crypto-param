@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoParam Sandbox</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a24;
+            --bg-card: #15151f;
+            --border: #2a2a3a;
+            --text-primary: #e8e8f0;
+            --text-secondary: #8888a0;
+            --text-muted: #55556a;
+            --accent: #00ff88;
+            --accent-dim: #00cc6a;
+            --warning: #ffaa00;
+            --danger: #ff4466;
+            --safe: #00ff88;
+            --moderate: #ffaa00;
+            --weak: #ff4466;
+            --gradient-1: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            --gradient-2: linear-gradient(135deg, #ff4466 0%, #ffaa00 100%);
+            --glow: 0 0 30px rgba(0, 255, 136, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background grid effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 3rem 0;
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .version {
+            display: inline-block;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+        }
+
+        /* Main grid layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 1000px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.5;
+        }
+
+        .card-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        /* Input controls */
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-label label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .input-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .input-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            transition: transform 0.15s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--accent);
+        }
+
+        /* Toggle switch */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+        }
+
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider::before {
+            position: absolute;
+            content: '';
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle input:checked + .toggle-slider {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .toggle input:checked + .toggle-slider::before {
+            transform: translateX(24px);
+            background: var(--bg-primary);
+        }
+
+        /* Results display */
+        .result-main {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-main::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .result-bits {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-bits.safe { color: var(--safe); }
+        .result-bits.moderate { color: var(--moderate); }
+        .result-bits.weak { color: var(--danger); }
+
+        .result-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .result-item {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .result-item-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .result-item-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Visualization panel */
+        .viz-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Security meter */
+        .security-meter {
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+        }
+
+        .meter-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .meter-title {
+            font-weight: 500;
+        }
+
+        .meter-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+        }
+
+        .meter-bar {
+            height: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .meter-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s ease, background 0.3s ease;
+        }
+
+        .meter-fill.safe { background: var(--gradient-1); }
+        .meter-fill.moderate { background: linear-gradient(90deg, var(--warning), #ffcc00); }
+        .meter-fill.weak { background: var(--gradient-2); }
+
+        .meter-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Chart */
+        .chart-container {
+            flex: 1;
+            min-height: 300px;
+            position: relative;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Comparison table */
+        .comparison-section {
+            margin-top: 2rem;
+        }
+
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dim);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .comparison-table td {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .comparison-table tr:hover td {
+            background: var(--bg-secondary);
+        }
+
+        .security-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .security-badge.safe {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--safe);
+        }
+
+        .security-badge.moderate {
+            background: rgba(255, 170, 0, 0.15);
+            color: var(--moderate);
+        }
+
+        .security-badge.weak {
+            background: rgba(255, 68, 102, 0.15);
+            color: var(--weak);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .delete-btn:hover {
+            color: var(--danger);
+        }
+
+        /* Code export */
+        .code-section {
+            margin-top: 2rem;
+        }
+
+        .code-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .code-tab {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px 6px 0 0;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .code-tab.active {
+            background: var(--bg-secondary);
+            color: var(--accent);
+            border-bottom-color: var(--bg-secondary);
+        }
+
+        .code-block {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0 8px 8px 8px;
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block code {
+            color: var(--text-primary);
+        }
+
+        .code-keyword { color: #ff79c6; }
+        .code-function { color: #50fa7b; }
+        .code-number { color: #bd93f9; }
+        .code-string { color: #f1fa8c; }
+        .code-comment { color: var(--text-muted); }
+
+        .copy-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.4rem 0.8rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Formula explanation */
+        .formula-section {
+            margin-top: 2rem;
+        }
+
+        .formula-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .formula-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .formula {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            color: var(--accent);
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .formula-steps {
+            list-style: none;
+        }
+
+        .formula-steps li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .formula-steps li:last-child {
+            border-bottom: none;
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-formula {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .calculating {
+            animation: pulse 1s infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .result-bits {
+                font-size: 3rem;
+            }
+
+            .result-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Presets section */
+        .presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .preset-btn {
+            padding: 0.4rem 0.8rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">CryptoParam</div>
+            <p class="tagline">Interactive LWE Security Estimator</p>
+            <span class="version">v0.1.0 • Primal Attack</span>
+        </header>
+
+        <div class="main-grid">
+            <!-- Controls Panel -->
+            <div class="controls-panel">
+                <div class="card">
+                    <div class="card-title">Parameters</div>
+
+                    <div class="presets">
+                        <button class="preset-btn" onclick="loadPreset('weak')">Weak</button>
+                        <button class="preset-btn" onclick="loadPreset('medium')">Medium</button>
+                        <button class="preset-btn" onclick="loadPreset('strong')">Strong</button>
+                        <button class="preset-btn" onclick="loadPreset('kyber512')">Kyber-512</button>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <label>Dimension (n)</label>
+                            <span class="input-value" id="n-value">256</span>
+                        </div>
+                        <div class="input-desc">Secret vector length</div>
+                        <input type="range" id="n-slider" min="32" max="2048" value="256" step="32" oninput="updateParam('n')">
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <label>Modulus (q)</label>
+                            <span class="input-value" id="q-value">7681</span>
+                        </div>
+                        <div class="input-desc">Prime modulus (try 2^k - 1)</div>
+                        <input type="number" id="q-input" value="7681" min="2" oninput="updateParam('q')">
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <label>Error σ</label>
+                            <span class="input-value" id="sigma-value">8.0</span>
+                        </div>
+                        <div class="input-desc">Gaussian error standard deviation</div>
+                        <input type="range" id="sigma-slider" min="0.5" max="50" value="8" step="0.5" oninput="updateParam('sigma')">
+                    </div>
+
+                    <div class="toggle-group">
+                        <span class="toggle-label">Sieving Cost Model</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="sieving-toggle" onchange="updateEstimate()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 100%;" onclick="addToComparison()">
+                        <span>+</span> Add to Comparison
+                    </button>
+                </div>
+
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div class="card-title">Result</div>
+                    
+                    <div class="result-main">
+                        <div class="result-bits safe" id="result-bits">73</div>
+                        <div class="result-label">bits security</div>
+                    </div>
+
+                    <div class="result-details">
+                        <div class="result-item">
+                            <div class="result-item-value" id="result-beta">250</div>
+                            <div class="result-item-label">BKZ β</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-item-value" id="result-d">384</div>
+                            <div class="result-item-label">Dimension d</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-item-value" id="result-m">128</div>
+                            <div class="result-item-label">Samples m</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-item-value" id="result-delta">1.0054</div>
+                            <div class="result-item-label">δ(β)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Panel -->
+            <div class="viz-panel">
+                <div class="card">
+                    <div class="card-title">Security Level</div>
+                    
+                    <div class="security-meter">
+                        <div class="meter-header">
+                            <span class="meter-title">Classical Security</span>
+                            <span class="meter-value" id="meter-value">73 bits</span>
+                        </div>
+                        <div class="meter-bar">
+                            <div class="meter-fill safe" id="meter-fill" style="width: 57%;"></div>
+                        </div>
+                        <div class="meter-labels">
+                            <span>0</span>
+                            <span>64</span>
+                            <span>128</span>
+                            <span>192</span>
+                            <span>256</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="flex: 1;">
+                    <div class="card-title">Security vs Dimension</div>
+                    <div class="chart-container">
+                        <canvas id="security-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="comparison-section">
+            <div class="card">
+                <div class="comparison-header">
+                    <div class="card-title" style="margin-bottom: 0;">Parameter Comparison</div>
+                    <button class="btn" onclick="clearComparison()">Clear All</button>
+                </div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>n</th>
+                            <th>q</th>
+                            <th>σ</th>
+                            <th>β</th>
+                            <th>Security</th>
+                            <th>Level</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparison-body">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted);">
+                                Add parameters to compare
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Code Export -->
+        <div class="code-section">
+            <div class="card">
+                <div class="card-title">Export Code</div>
+                
+                <div class="code-tabs">
+                    <button class="code-tab active" onclick="showCodeTab('python')">Python</button>
+                    <button class="code-tab" onclick="showCodeTab('rust')">Rust</button>
+                    <button class="code-tab" onclick="showCodeTab('cli')">CLI</button>
+                </div>
+
+                <div class="code-block" id="code-block">
+                    <button class="copy-btn" onclick="copyCode()">Copy</button>
+                    <code id="code-content"></code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formula Explanation -->
+        <div class="formula-section">
+            <div class="card">
+                <div class="card-title">How It Works</div>
+                
+                <div class="formula-card">
+                    <div class="formula-title">
+                        <span>📐</span> Primal uSVP Attack
+                    </div>
+                    
+                    <div class="formula">
+                        δ(β)^d · q^(m/d) ≤ σ · √d
+                    </div>
+
+                    <ul class="formula-steps">
+                        <li>
+                            <span class="step-num">1</span>
+                            <div class="step-content">
+                                <strong>Build lattice</strong> from LWE samples with dimension d = n + m
+                                <div class="step-formula">Lattice volume = q^m</div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="step-num">2</span>
+                            <div class="step-content">
+                                <strong>Find required δ</strong> — root Hermite factor for attack success
+                                <div class="step-formula">δ_max = (σ√d / q^(m/d))^(1/d)</div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="step-num">3</span>
+                            <div class="step-content">
+                                <strong>Convert δ → β</strong> — BKZ block size achieving δ(β) ≤ δ_max
+                                <div class="step-formula">δ(β) ≈ (β / 2πe)^(1/(2β-2))</div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="step-num">4</span>
+                            <div class="step-content">
+                                <strong>Compute cost</strong> — BKZ-β running time
+                                <div class="step-formula">Cost = 2^(0.292β) [Core-SVP] or 2^(0.265β) [Sieving]</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // ============================================================
+        // Core Estimation (mirrors Rust implementation)
+        // ============================================================
+        
+        function delta0(beta) {
+            if (beta < 40) {
+                return 1.0219 - (beta - 2) * (1.0219 - 1.0126) / 48;
+            }
+            return Math.pow(beta / (2 * Math.PI * Math.E), 1 / (2 * beta - 2));
+        }
+
+        function betaFromDelta(targetDelta) {
+            if (targetDelta >= 1.0219) return 2;
+            if (targetDelta <= 1.0) return 10000;
+            
+            let lo = 40, hi = 10000;
+            while (lo < hi) {
+                const mid = Math.floor((lo + hi) / 2);
+                if (delta0(mid) <= targetDelta) {
+                    hi = mid;
+                } else {
+                    lo = mid + 1;
+                }
+            }
+            return lo;
+        }
+
+        function bkzCost(beta, sieving = false) {
+            if (beta < 2) return 0;
+            if (beta >= 10000) return Infinity;
+            return sieving ? 0.265 * beta : 0.292 * beta;
+        }
+
+        function primalUsvp(n, q, sigma) {
+            let bestBeta = 10000;
+            let bestM = n;
+            let bestD = 2 * n;
+            
+            const logQ = Math.log(q);
+            const logSigma = Math.log(sigma);
+            
+            const mStart = Math.max(1, Math.floor(n / 2));
+            const mEnd = 8 * n;
+            
+            for (let m = mStart; m < mEnd; m++) {
+                const d = m + n;
+                const logDeltaMax = (logSigma + 0.5 * Math.log(d) - (m / d) * logQ) / d;
+                
+                if (logDeltaMax <= 0) continue;
+                
+                const deltaMax = Math.exp(logDeltaMax);
+                const beta = betaFromDelta(deltaMax);
+                
+                if (beta < bestBeta) {
+                    bestBeta = beta;
+                    bestM = m;
+                    bestD = d;
+                }
+            }
+            
+            return { beta: bestBeta, m: bestM, d: bestD };
+        }
+
+        function estimate(n, q, sigma, sieving = false) {
+            const { beta, m, d } = primalUsvp(n, q, sigma);
+            const bits = bkzCost(beta, sieving);
+            const delta = delta0(beta);
+            
+            return {
+                n, q, sigma,
+                beta, m, d,
+                bits: Math.round(bits * 10) / 10,
+                delta: delta.toFixed(4)
+            };
+        }
+
+        // ============================================================
+        // UI State
+        // ============================================================
+        
+        let currentParams = { n: 256, q: 7681, sigma: 8.0 };
+        let comparisons = [];
+        let chart = null;
+        let currentCodeTab = 'python';
+
+        // ============================================================
+        // UI Updates
+        // ============================================================
+        
+        function updateParam(param) {
+            if (param === 'n') {
+                currentParams.n = parseInt(document.getElementById('n-slider').value);
+                document.getElementById('n-value').textContent = currentParams.n;
+            } else if (param === 'q') {
+                currentParams.q = parseInt(document.getElementById('q-input').value) || 2;
+                document.getElementById('q-value').textContent = currentParams.q;
+            } else if (param === 'sigma') {
+                currentParams.sigma = parseFloat(document.getElementById('sigma-slider').value);
+                document.getElementById('sigma-value').textContent = currentParams.sigma.toFixed(1);
+            }
+            updateEstimate();
+        }
+
+        function updateEstimate() {
+            const sieving = document.getElementById('sieving-toggle').checked;
+            const result = estimate(currentParams.n, currentParams.q, currentParams.sigma, sieving);
+            
+            // Update result display
+            const bitsEl = document.getElementById('result-bits');
+            bitsEl.textContent = result.beta >= 10000 ? '∞' : Math.round(result.bits);
+            
+            // Security level coloring
+            let level = 'safe';
+            if (result.bits < 80) level = 'weak';
+            else if (result.bits < 128) level = 'moderate';
+            
+            bitsEl.className = 'result-bits ' + level;
+            
+            // Update details
+            document.getElementById('result-beta').textContent = result.beta >= 10000 ? '∞' : result.beta;
+            document.getElementById('result-d').textContent = result.d;
+            document.getElementById('result-m').textContent = result.m;
+            document.getElementById('result-delta').textContent = result.delta;
+            
+            // Update meter
+            const meterValue = document.getElementById('meter-value');
+            const meterFill = document.getElementById('meter-fill');
+            meterValue.textContent = result.beta >= 10000 ? '∞' : `${Math.round(result.bits)} bits`;
+            
+            const percentage = Math.min(100, (result.bits / 256) * 100);
+            meterFill.style.width = `${percentage}%`;
+            meterFill.className = 'meter-fill ' + level;
+            
+            // Update chart
+            updateChart();
+            
+            // Update code
+            updateCode();
+        }
+
+        function updateChart() {
+            const sieving = document.getElementById('sieving-toggle').checked;
+            const dimensions = [];
+            const securities = [];
+            
+            for (let n = 64; n <= 1024; n += 32) {
+                const result = estimate(n, currentParams.q, currentParams.sigma, sieving);
+                dimensions.push(n);
+                securities.push(result.bits > 500 ? null : result.bits);
+            }
+            
+            if (chart) {
+                chart.data.labels = dimensions;
+                chart.data.datasets[0].data = securities;
+                chart.update('none');
+            } else {
+                const ctx = document.getElementById('security-chart').getContext('2d');
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dimensions,
+                        datasets: [{
+                            label: 'Security (bits)',
+                            data: securities,
+                            borderColor: '#00ff88',
+                            backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 0,
+                            pointHoverRadius: 6,
+                            pointHoverBackgroundColor: '#00ff88',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#1a1a24',
+                                titleColor: '#e8e8f0',
+                                bodyColor: '#00ff88',
+                                borderColor: '#2a2a3a',
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: false,
+                                callbacks: {
+                                    title: (items) => `n = ${items[0].label}`,
+                                    label: (item) => `${item.raw} bits`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Dimension (n)', color: '#8888a0' },
+                                grid: { color: '#2a2a3a' },
+                                ticks: { color: '#8888a0' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Security (bits)', color: '#8888a0' },
+                                grid: { color: '#2a2a3a' },
+                                ticks: { color: '#8888a0' },
+                                min: 0
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        }
+                    }
+                });
+            }
+            
+            // Add current point marker
+            const currentN = currentParams.n;
+            const currentResult = estimate(currentN, currentParams.q, currentParams.sigma, sieving);
+            
+            if (chart.data.datasets.length === 1) {
+                chart.data.datasets.push({
+                    label: 'Current',
+                    data: [],
+                    pointRadius: 8,
+                    pointBackgroundColor: '#ff4466',
+                    pointBorderColor: '#ff4466',
+                    showLine: false
+                });
+            }
+            
+            // Set current point
+            const pointData = dimensions.map((n, i) => n === currentN ? securities[i] : null);
+            chart.data.datasets[1].data = pointData;
+            chart.update('none');
+        }
+
+        // ============================================================
+        // Presets
+        // ============================================================
+        
+        const presets = {
+            weak: { n: 64, q: 127, sigma: 3.0 },
+            medium: { n: 256, q: 7681, sigma: 8.0 },
+            strong: { n: 512, q: 12289, sigma: 10.0 },
+            kyber512: { n: 512, q: 3329, sigma: 1.22 }
+        };
+
+        function loadPreset(name) {
+            const preset = presets[name];
+            currentParams = { ...preset };
+            
+            document.getElementById('n-slider').value = preset.n;
+            document.getElementById('n-value').textContent = preset.n;
+            document.getElementById('q-input').value = preset.q;
+            document.getElementById('q-value').textContent = preset.q;
+            document.getElementById('sigma-slider').value = preset.sigma;
+            document.getElementById('sigma-value').textContent = preset.sigma.toFixed(1);
+            
+            updateEstimate();
+        }
+
+        // ============================================================
+        // Comparison
+        // ============================================================
+        
+        function addToComparison() {
+            const sieving = document.getElementById('sieving-toggle').checked;
+            const result = estimate(currentParams.n, currentParams.q, currentParams.sigma, sieving);
+            
+            // Check for duplicate
+            const exists = comparisons.some(c => 
+                c.n === result.n && c.q === result.q && c.sigma === result.sigma
+            );
+            if (exists) return;
+            
+            comparisons.push(result);
+            renderComparison();
+        }
+
+        function removeFromComparison(index) {
+            comparisons.splice(index, 1);
+            renderComparison();
+        }
+
+        function clearComparison() {
+            comparisons = [];
+            renderComparison();
+        }
+
+        function renderComparison() {
+            const tbody = document.getElementById('comparison-body');
+            
+            if (comparisons.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted);">
+                            Add parameters to compare
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = comparisons.map((c, i) => {
+                let level = 'safe';
+                if (c.bits < 80) level = 'weak';
+                else if (c.bits < 128) level = 'moderate';
+                
+                const levelText = c.bits >= 500 ? 'Secure' : 
+                    level === 'safe' ? '128+ bit' : 
+                    level === 'moderate' ? '80-128 bit' : '<80 bit';
+                
+                return `
+                    <tr>
+                        <td>${c.n}</td>
+                        <td>${c.q}</td>
+                        <td>${c.sigma}</td>
+                        <td>${c.beta >= 10000 ? '∞' : c.beta}</td>
+                        <td>${c.bits >= 500 ? '∞' : c.bits} bits</td>
+                        <td><span class="security-badge ${level}">${levelText}</span></td>
+                        <td>
+                            <button class="delete-btn" onclick="removeFromComparison(${i})">✕</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ============================================================
+        // Code Export
+        // ============================================================
+        
+        function showCodeTab(tab) {
+            currentCodeTab = tab;
+            document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            updateCode();
+        }
+
+        function updateCode() {
+            const { n, q, sigma } = currentParams;
+            const sieving = document.getElementById('sieving-toggle').checked;
+            
+            let code = '';
+            
+            if (currentCodeTab === 'python') {
+                code = `<span class="code-keyword">from</span> cryptoparam <span class="code-keyword">import</span> estimate_lwe
+
+<span class="code-comment"># Estimate LWE security</span>
+result = <span class="code-function">estimate_lwe</span>(
+    n=<span class="code-number">${n}</span>,
+    q=<span class="code-number">${q}</span>,
+    sigma=<span class="code-number">${sigma}</span>,
+    sieving=<span class="code-keyword">${sieving ? 'True' : 'False'}</span>
+)
+
+<span class="code-function">print</span>(result.classical_bits)  <span class="code-comment"># Security in bits</span>
+<span class="code-function">print</span>(result.beta)            <span class="code-comment"># BKZ block size</span>`;
+            } else if (currentCodeTab === 'rust') {
+                code = `<span class="code-keyword">use</span> cryptoparam::{estimate_core, CostModel};
+
+<span class="code-keyword">fn</span> <span class="code-function">main</span>() {
+    <span class="code-keyword">let</span> result = <span class="code-function">estimate_core</span>(
+        <span class="code-number">${n}</span>,      <span class="code-comment">// n</span>
+        <span class="code-number">${q}</span>,   <span class="code-comment">// q</span>
+        <span class="code-number">${sigma}</span>,    <span class="code-comment">// sigma</span>
+        <span class="code-keyword">${sieving ? 'true' : 'false'}</span>   <span class="code-comment">// sieving</span>
+    );
+    
+    <span class="code-function">println!</span>(<span class="code-string">"Security: {} bits"</span>, result.classical_bits);
+    <span class="code-function">println!</span>(<span class="code-string">"Beta: {}"</span>, result.beta);
+}`;
+            } else {
+                code = `<span class="code-comment"># Basic usage</span>
+cryptoparam <span class="code-number">${n}</span> <span class="code-number">${q}</span> <span class="code-number">${sigma}</span>${sieving ? ' --sieving' : ''}
+
+<span class="code-comment"># Verbose output</span>
+cryptoparam <span class="code-number">${n}</span> <span class="code-number">${q}</span> <span class="code-number">${sigma}</span> -v
+
+<span class="code-comment"># Power notation</span>
+cryptoparam <span class="code-number">${n}</span> <span class="code-number">2**13</span> <span class="code-number">${sigma}</span>`;
+            }
+            
+            document.getElementById('code-content').innerHTML = code;
+        }
+
+        function copyCode() {
+            const code = document.getElementById('code-content').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = 'Copy', 2000);
+            });
+        }
+
+        // ============================================================
+        // Initialize
+        // ============================================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateEstimate();
+        });
+    </script>
+</body>
+</html>
